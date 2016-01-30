@@ -2,6 +2,7 @@ package net.zyuiop.fastffmpeg;
 
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -12,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -62,8 +64,23 @@ public class FastFfmpeg extends Application {
 		TableView<ConversionThread> view = new TableView<>();
 		view.getColumns().addAll(sourceCol, targetCol, encoderCol, progressCol, statusCol);
 
-		Label label = new Label("Encodeur (libx264) :");
-		TextField field = new TextField("libx264");
+		ChoiceBox<Encoders> choiceBox = new ChoiceBox<>(FXCollections.observableArrayList(Encoders.values()));
+		choiceBox.setConverter(new StringConverter<Encoders>() {
+			@Override
+			public String toString(Encoders object) {
+				return object.getDisplay();
+			}
+
+			@Override
+			public Encoders fromString(String string) {
+				return Encoders.getByDisplay(string);
+			}
+		});
+
+		choiceBox.setValue(Encoders.XVID);
+
+		Label label = new Label("Encodeur :");
+		//TextField field = new TextField("libx264");
 
 		Button button = new Button("Ajouter des fichiers...");
 		button.setOnMouseClicked(event -> {
@@ -76,18 +93,18 @@ public class FastFfmpeg extends Application {
 			files.forEach(file -> {
 				String path = file.getAbsolutePath();
 				String[] parts = path.split("\\.");
-				parts[parts.length - 1] = "mp4";
+				parts[parts.length - 1] = choiceBox.getValue().getFileExtension();
 				parts[parts.length - 2] = parts[parts.length - 2] + "-converted";
 				String target = StringUtils.join(parts, ".");
 
-				view.getItems().add(converter.convert(path, target, field.getText()));
+				view.getItems().add(converter.convert(path, target, choiceBox.getValue().getCodev()));
 			});
 		});
 
 		final HBox hb = new HBox();
 		hb.setSpacing(5);
 		hb.setAlignment(Pos.CENTER);
-		hb.getChildren().addAll(label, field, button);
+		hb.getChildren().addAll(label, choiceBox, button);
 
 		final VBox vb = new VBox();
 		vb.setSpacing(5);
