@@ -25,6 +25,11 @@
             <version>2.4</version>
         </dependency>
         <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>8.40.11-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>slf4j-impl</artifactId>
             <version>2.0-alpha2</version>

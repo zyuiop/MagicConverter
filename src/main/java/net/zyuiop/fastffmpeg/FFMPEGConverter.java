@@ -3,13 +3,18 @@ package net.zyuiop.fastffmpeg;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
@@ -31,46 +36,52 @@ public class FFMPEGConverter {
 
 	public FFMPEGConverter(int maxSimultaneous, Stage stage) throws IOException {
 		this.maxSimultaneous = maxSimultaneous;
+		executor = Executors.newFixedThreadPool(maxSimultaneous);
+		stage.show();
+
 		if (SystemUtils.IS_OS_WINDOWS) {
 			URL url = new URL("http://files.zyuiop.net/ffmpeg.exe");
 			File ffmpeg = new File(new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile(), "ffmpeg.exe");
 			ffmpegPath = ffmpeg.getAbsolutePath();
 
 			if (!ffmpeg.exists()) {
-				ProgressForm form = new ProgressForm();
-				form.activateProgressBar(new Task<Void>() {
+				Task<Void> task = new Task<Void>() {
 					@Override
 					protected Void call() throws Exception {
-						BufferedInputStream stream = new BufferedInputStream(url.openStream());
+						URLConnection connection = url.openConnection();
+						BufferedInputStream stream = new BufferedInputStream(connection.getInputStream());
 						FileOutputStream out = new FileOutputStream(ffmpeg);
 
-						int avail = stream.available();
+						int avail = connection.getContentLength();
+						int read = 0;
+
 						try {
 							final byte data[] = new byte[1024];
 							int count;
 							while ((count = stream.read(data, 0, 1024)) != -1) {
 								out.write(data, 0, count);
+								read += count;
+								updateProgress((double) read, (double) avail);
 							}
-							updateProgress(count, avail);
 						} finally {
 							stream.close();
 							out.close();
 						}
 
-						stage.show();
-
-						System.out.println("Download finished.");
 						return null;
 					}
-				});
-			} else {
-				stage.show();
+				};
+
+				ProgressDialog dialog = new ProgressDialog(task);
+				dialog.setTitle("Téléchargement de FFMpeg");
+				dialog.setHeaderText("Téléchargement de FFMpeg...");
+				dialog.setContentText("Veuillez patienter quelques instants");
+				dialog.show();
+				executor.execute(task);
 			}
 		} else {
 			ffmpegPath = "ffmpeg";
-			stage.show();
 		}
-		executor = Executors.newFixedThreadPool(maxSimultaneous);
 	}
 
 	private static double getTimeSeconds(String timeString) {
