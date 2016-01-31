@@ -147,7 +147,7 @@ public class FFMPEGConverter {
 		@Override
 		public Void call() {
 			try {
-				List<String> args = Lists.newArrayList(ffmpeg.ffmpegPath, "-i", path, "-y", "-strict", "-2", "-c:v", encoder, "-preset", "ultrafast", output);
+				List<String> args = Lists.newArrayList(ffmpeg.ffmpegPath, "-i", path, "-y", "-strict", "-2", "-c:v", encoder, "-c:a", "aac", "-preset", "fast", output);
 				System.out.println(args);
 				ProcessBuilder builder = new ProcessBuilder(args);
 				builder.redirectErrorStream(true);

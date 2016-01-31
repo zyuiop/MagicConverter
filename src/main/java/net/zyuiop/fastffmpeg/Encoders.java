@@ -7,7 +7,8 @@ import java.util.Map;
  * @author zyuiop
  */
 public enum Encoders {
-	MP4("x264", "libx264", "mp4"),
+	MP4("MP4", "libx264", "mp4"),
+	FLV("FLV", "flv", "flv"),
 	XVID("DivX", "libxvid", "avi");
 
 	private final String display;

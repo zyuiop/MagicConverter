@@ -3,11 +3,13 @@ package net.zyuiop.fastffmpeg;
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -77,11 +79,9 @@ public class FastFfmpeg extends Application {
 			}
 		});
 
-		choiceBox.setValue(Encoders.XVID);
+		choiceBox.setValue(Encoders.MP4);
 
 		Label label = new Label("Encodeur :");
-		//TextField field = new TextField("libx264");
-
 		Button button = new Button("Ajouter des fichiers...");
 		button.setOnMouseClicked(event -> {
 			FileChooser chooser = new FileChooser();
